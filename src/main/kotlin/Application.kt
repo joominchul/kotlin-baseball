@@ -7,6 +7,7 @@ class Computer{
     var third:Int
     var answer:Int = 0
     var win:Boolean = false
+
 //    컴퓨터는 1에서 9까지 서로 다른 임의의 수 3개를 선택한다.
     init {
         first = RANGE.random()
@@ -26,7 +27,7 @@ class Computer{
     fun run():Int{
         while (!win){
             input()
-            check()
+            win = printCheck(check(answer))
         }
         println("게임을 새로 시작하려면 1, 종료하려면 0을 제외한 다른 수를 입력하세요.")
         return readNum()
@@ -52,30 +53,37 @@ class Computer{
         }
     }
 
-//    같은 수가 같은 자리에 있으면 스트라이크, 다른 자리에 있으면 볼, 같은 수가 전혀 없으면 낫싱이란 힌트를 얻고,
-//    그 힌트를 이용해서 먼저 상대방(컴퓨터)의 수를 맞추면 승리한다. 승리하였다면 win 불린 변수를 참으로 변경한다.
-//    컴퓨터는 입력한 숫자에 대한 결과를 출력한다.
-    fun check(){
-        var ball:Int = 0
-        var strike:Int = 0
+//    볼판정을 한다.
+    fun check(inputNum:Int):MutableList<Int>{
+        val ballStrike = mutableListOf<Int>(0,0) //ball, strike
+        var answer = inputNum
         var num:Int = answer/100
-        if (first == num) strike+=1
-        else if (num == second || num == third) ball +=1
+        if (first == num) ballStrike[1]+=1
+        else if (num == second || num == third) ballStrike[0] +=1
         answer %= 100
         num = answer/10
-        if (second == num) strike+=1
-        else if (num == first || num == third) ball +=1
+        if (second == num) ballStrike[1]+=1
+        else if (num == first || num == third) ballStrike[0] +=1
         answer%=10
         num = answer
-        if (third == num) strike+=1
-        else if (num == first || num == second) ball +=1
+        if (third == num) ballStrike[1]+=1
+        else if (num == first || num == second) ballStrike[0] +=1
 
-        if (ball + strike == 0) println("낫싱")
+        return ballStrike
+    }
+
+    //볼판정 출력
+    fun printCheck(ch:MutableList<Int>):Boolean{
+        val ball:Int = ch[0]
+        val strike:Int = ch[1]
+        if (ball + strike == 0) {
+            println("낫싱")
+        }
         else if (ball == 0){
             println("${strike}스트라이크")
             if (strike == 3){
                 println("3개의 숫자를 모두 맞히셨습니다! 게임 종료")
-                win = true
+                return true
             }
         }
         else if (strike == 0){
@@ -83,8 +91,8 @@ class Computer{
         }
         else {
             println("${ball}볼 ${strike}스트라이크")
-
         }
+        return false
     }
 
 }
@@ -92,7 +100,7 @@ class Computer{
 //    게임의 시작과 반복, 종료 구현.
 //    사용자가 잘못된 값을 입력할 경우 IllegalArgumentException 을 발생시킨 후 애플리케이션은 종료
 fun main(){
-    var start:Int = 1
+    var start = 1
     while(start == 1){
         val computer = Computer()
         try {
